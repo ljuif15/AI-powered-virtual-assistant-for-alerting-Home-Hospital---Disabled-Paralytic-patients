@@ -19,9 +19,7 @@ app.secret_key = "secret123"
 
 from pydub import AudioSegment
 
-AudioSegment.converter = r"C:\ffmpeg\bin\ffmpeg.exe"
-AudioSegment.ffmpeg = r"C:\ffmpeg\bin\ffmpeg.exe"
-AudioSegment.ffprobe = r"C:\ffmpeg\bin\ffprobe.exe"
+
 
 
 
@@ -1347,11 +1345,7 @@ def logout():
 # =================================================
 if __name__ == "__main__":
     print("🚀 Starting Flask application...")
-    print("🌐 Server running at: http://127.0.0.1:5000/")
     print("📊 Database initialized")
-    
-    # Start with a clean database (optional for development)
-    # Uncomment the next line if you want to reset the database on every restart
-    # reset_db()
-    
-    app.run(debug=True, use_reloader=False)
+
+    # Render / production safe run
+    app.run(host="0.0.0.0", port=5000)

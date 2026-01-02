@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emotion Detection - AI Health Assistant</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        :root {
+            --primary-gradient: linear-gradient(135deg, #8966ea 0%, #764ba2 100%);
+            --emotion-gradient: linear-gradient(135deg, #9c27b0 0%, #8e0fa7 100%);
+            --success-gradient: linear-gradient(135deg, #4caf50 0%, #2e7d32 100%);
+            --warning-gradient: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+            --info-gradient: linear-gradient(135deg, #8e21f3 0%, #720da1 100%);
+            
+            --light-bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-dark: #1e293b;
+            --text-light: #64748b;
+            --border-color: #e2e8f0;
+            
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+            --shadow-lg: 0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);
+            --shadow-xl: 0 20px 40px -15px rgba(0,0,0,0.15);
+            --shadow-emotion: 0 10px 30px rgba(156, 39, 176, 0.2);
+            
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            --radius-full: 9999px;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f0ff 0%, #f0f4ff 100%);
+            min-height: 100vh;
+            color: var(--text-dark);
+        }
+
+        /* ================= HEADER ================= */
+        .header {
+            background: var(--emotion-gradient);
+            color: white;
+            padding: 1.25rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow-lg);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            background-color: rgba(156, 39, 176, 0.95);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo {
+            width: 48px;
+            height: 48px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(5px);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            border: 2px solid rgba(255, 255, 255, 0.25);
+        }
+
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo-text h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+        }
+
+        .logo-text span {
+            font-size: 0.75rem;
+            opacity: 0.9;
+            font-weight: 400;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            text-decoration: none;
+            border-radius: var(--radius-full);
+            font-weight: 500;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            backdrop-filter: blur(5px);
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        /* ================= MAIN CONTAINER ================= */
+        .main-container {
+            max-width: 900px;
+            margin: 2.5rem auto;
+            padding: 0 1.5rem;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { 
+                opacity: 0; 
+                transform: translateY(30px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+
+        /* ================= HERO SECTION ================= */
+        .hero-section {
+            background: var(--card-bg);
+            border-radius: var(--radius-xl);
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--emotion-gradient);
+        }
+
+        .hero-content {
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            display: inline-block;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .hero-title {
+            font-size: 2.25rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: var(--emotion-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-description {
+            color: var(--text-light);
+            font-size: 1.125rem;
+            line-height: 1.7;
+            margin-bottom: 2rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* ================= EMOTION OPTIONS ================= */
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .option-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            text-align: center;
+            text-decoration: none;
+            color: inherit;
+            border: 1px solid var(--border-color);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100%;
+        }
+
+        .option-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .option-card.short::before { background: var(--success-gradient); }
+        .option-card.medium::before { background: var(--warning-gradient); }
+        .option-card.unlimited::before { background: var(--emotion-gradient); }
+
+        .option-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-xl);
+            border-color: transparent;
+        }
+
+        .option-card:hover::before {
+            opacity: 1;
+        }
+
+        .option-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-lg);
+            transition: all 0.3s ease;
+        }
+
+        .option-card:hover .option-icon {
+            transform: scale(1.1);
+        }
+
+        .option-card.short .option-icon {
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.1), rgba(46, 125, 50, 0.1));
+            color: #4caf50;
+        }
+
+        .option-card.medium .option-icon {
+            background: linear-gradient(135deg, rgba(255, 152, 0, 0.1), rgba(245, 124, 0, 0.1));
+            color: #ff9800;
+        }
+
+        .option-card.unlimited .option-icon {
+            background: linear-gradient(135deg, rgba(156, 39, 176, 0.1), rgba(233, 30, 99, 0.1));
+            color: #9c27b0;
+        }
+
+        .option-title {
+            font-size: 1.375rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            color: var(--text-dark);
+        }
+
+        .option-description {
+            color: var(--text-light);
+            font-size: 0.875rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            flex-grow: 1;
+        }
+
+        .duration-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.625rem 1.25rem;
+            border-radius: var(--radius-full);
+            font-weight: 600;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+        }
+
+        .short .duration-badge {
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.1), rgba(46, 125, 50, 0.05));
+            color: #4caf50;
+            border: 1px solid rgba(76, 175, 80, 0.2);
+        }
+
+        .medium .duration-badge {
+            background: linear-gradient(135deg, rgba(255, 152, 0, 0.1), rgba(245, 124, 0, 0.05));
+            color: #ff9800;
+            border: 1px solid rgba(255, 152, 0, 0.2);
+        }
+
+        .unlimited .duration-badge {
+            background: linear-gradient(135deg, rgba(156, 39, 176, 0.1), rgba(233, 30, 99, 0.05));
+            color: #9c27b0;
+            border: 1px solid rgba(156, 39, 176, 0.2);
+        }
+
+        /* ================= EMOTION GALLERY ================= */
+        .emotion-gallery {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 2.5rem 0;
+            flex-wrap: wrap;
+        }
+
+        .emotion-item {
+            background: var(--card-bg);
+            padding: 1.25rem;
+            border-radius: var(--radius-lg);
+            text-align: center;
+            min-width: 100px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .emotion-item:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+            border-color: transparent;
+        }
+
+        .emotion-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--emotion-gradient);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .emotion-item:hover::before {
+            opacity: 1;
+        }
+
+        .emotion-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.75rem;
+            display: block;
+        }
+
+        .emotion-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        /* ================= INSTRUCTIONS ================= */
+        .instructions-section {
+            background: linear-gradient(135deg, #f8fafc, #ffffff);
+            border-radius: var(--radius-xl);
+            padding: 2rem;
+            margin-top: 3rem;
+            border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .instructions-section::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--info-gradient);
+        }
+
+        .instructions-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .instructions-header h3 {
+            font-size: 1.375rem;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .instructions-header .icon {
+            font-size: 1.5rem;
+            background: var(--info-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .instructions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .instruction-item {
+            background: rgba(255, 255, 255, 0.7);
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .instruction-number {
+            width: 28px;
+            height: 28px;
+            background: var(--info-gradient);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .instruction-text {
+            font-size: 0.875rem;
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+
+        /* ================= FOOTER ================= */
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            margin-top: 4rem;
+            color: var(--text-light);
+            font-size: 0.875rem;
+            border-top: 1px solid var(--border-color);
+            background: linear-gradient(135deg, #f8fafc, #ffffff);
+        }
+
+        .privacy-note {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(33, 150, 243, 0.1);
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius-full);
+            margin-top: 1rem;
+            font-size: 0.75rem;
+            color: #2196f3;
+            border: 1px solid rgba(33, 150, 243, 0.2);
+        }
+
+        /* ================= RESPONSIVE DESIGN ================= */
+        @media (max-width: 768px) {
+            .header {
+                padding: 1rem;
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .header-left {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+
+            .main-container {
+                margin: 1.5rem auto;
+                padding: 0 1rem;
+            }
+
+            .hero-section {
+                padding: 1.75rem;
+            }
+
+            .hero-title {
+                font-size: 1.875rem;
+            }
+
+            .hero-description {
+                font-size: 1rem;
+            }
+
+            .options-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .emotion-gallery {
+                gap: 0.75rem;
+            }
+
+            .emotion-item {
+                min-width: 85px;
+                padding: 1rem;
+            }
+
+            .instructions-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ================= ANIMATIONS ================= */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .option-card {
+            animation: slideIn 0.6s ease-out;
+        }
+
+        .option-card.short { animation-delay: 0.1s; }
+        .option-card.medium { animation-delay: 0.2s; }
+        .option-card.unlimited { animation-delay: 0.3s; }
+
+        .emotion-item {
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .emotion-item:nth-child(1) { animation-delay: 0.4s; }
+        .emotion-item:nth-child(2) { animation-delay: 0.5s; }
+        .emotion-item:nth-child(3) { animation-delay: 0.6s; }
+        .emotion-item:nth-child(4) { animation-delay: 0.7s; }
+        .emotion-item:nth-child(5) { animation-delay: 0.8s; }
+
+        /* ================= SCROLLBAR ================= */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--emotion-gradient);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #8e24aa, #d81b60);
+        }
+    </style>
+
+    <!-- Add Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+<!-- ================= HEADER ================= -->
+<div class="header">
+    <div class="header-left">
+        <div class="logo">😊</div>
+        <div class="logo-text">
+            <h2>AI Emotion Detection</h2>
+            <span>Real-time Facial Analysis</span>
+        </div>
+    </div>
+    <a href="/patient_dashboard" class="back-btn">
+        <span>←</span> Back to Dashboard
+    </a>
+</div>
+
+<!-- ================= MAIN CONTAINER ================= -->
+<div class="main-container">
+    
+    <!-- Hero Section -->
+    <div class="hero-section">
+        <div class="hero-content">
+            <div class="hero-icon">😊</div>
+            <h1 class="hero-title">AI Emotion Detection</h1>
+            <p class="hero-description">
+                Our advanced AI analyzes your facial expressions in real-time to understand your emotional state. 
+                This helps your caretaker provide better support and personalized assistance.
+            </p>
+            
+            <!-- Emotion Gallery -->
+            <div class="emotion-gallery">
+                <div class="emotion-item">
+                    <span class="emotion-icon">😊</span>
+                    <div class="emotion-label">Happy</div>
+                </div>
+                <div class="emotion-item">
+                    <span class="emotion-icon">😐</span>
+                    <div class="emotion-label">Neutral</div>
+                </div>
+                <div class="emotion-item">
+                    <span class="emotion-icon">😢</span>
+                    <div class="emotion-label">Sad</div>
+                </div>
+                <div class="emotion-item">
+                    <span class="emotion-icon">😠</span>
+                    <div class="emotion-label">Angry</div>
+                </div>
+                <div class="emotion-item">
+                    <span class="emotion-icon">😨</span>
+                    <div class="emotion-label">Fear</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Emotion Detection Options -->
+    <div class="options-grid">
+        <!-- 5 Seconds Option -->
+        <a href="/emotion_detect/5" class="option-card short">
+            <div class="option-icon">⏱️</div>
+            <h3 class="option-title">Quick Scan</h3>
+            <p class="option-description">
+                Perfect for a quick check. The AI will analyze your emotions for 5 seconds and send the results to your caretaker.
+            </p>
+            <div class="duration-badge">
+                <span>⏱️</span> 5 Seconds
+            </div>
+        </a>
+
+        <!-- 10 Seconds Option -->
+        <a href="/emotion_detect/10" class="option-card medium">
+            <div class="option-icon">📊</div>
+            <h3 class="option-title">Standard Analysis</h3>
+            <p class="option-description">
+                Get a more accurate reading with 10 seconds of analysis. Better for understanding your current emotional state.
+            </p>
+            <div class="duration-badge">
+                <span>📊</span> 10 Seconds
+            </div>
+        </a>
+
+        <!-- Unlimited Option -->
+        <a href="/emotion_detect/0" class="option-card unlimited">
+            <div class="option-icon">♾️</div>
+            <h3 class="option-title">Continuous Mode</h3>
+            <p class="option-description">
+                Keep the emotion detection running until you press 'Q' to stop. Great for longer monitoring sessions.
+            </p>
+            <div class="duration-badge">
+                <span>♾️</span> Press Q to Stop
+            </div>
+        </a>
+    </div>
+
+    <!-- Instructions -->
+    <div class="instructions-section">
+        <div class="instructions-header">
+            <div class="icon">📋</div>
+            <h3>How It Works</h3>
+        </div>
+        
+        <div class="instructions-grid">
+            <div class="instruction-item">
+                <div class="instruction-number">1</div>
+                <div class="instruction-text">Camera will open automatically when you select a duration</div>
+            </div>
+            <div class="instruction-item">
+                <div class="instruction-number">2</div>
+                <div class="instruction-text">Position your face clearly in front of the camera</div>
+            </div>
+            <div class="instruction-item">
+                <div class="instruction-number">3</div>
+                <div class="instruction-text">Ensure good lighting for accurate detection</div>
+            </div>
+            <div class="instruction-item">
+                <div class="instruction-number">4</div>
+                <div class="instruction-text">The AI analyzes facial expressions in real-time</div>
+            </div>
+            <div class="instruction-item">
+                <div class="instruction-number">5</div>
+                <div class="instruction-text">Dominant emotion is sent to your caretaker</div>
+            </div>
+            <div class="instruction-item">
+                <div class="instruction-number">6</div>
+                <div class="instruction-text">Press 'Q' on keyboard to exit continuous mode</div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- ================= FOOTER ================= -->
+<div class="footer">
+    <p>© 2024 AI Health Assistant. Emotion detection powered by AI.</p>
+    <div class="privacy-note">
+        <span>🔒</span>
+        Your privacy is protected - video is processed locally and not stored
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add ripple effect to option cards
+        const optionCards = document.querySelectorAll('.option-card');
+        optionCards.forEach(card => {
+            card.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Create ripple element
+                const ripple = document.createElement('span');
+                const rect = this.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                const x = e.clientX - rect.left - size / 2;
+                const y = e.clientY - rect.top - size / 2;
+                
+                ripple.style.cssText = `
+                    position: absolute;
+                    border-radius: 50%;
+                    background: rgba(255, 255, 255, 0.7);
+                    transform: scale(0);
+                    animation: ripple 0.6s linear;
+                    width: ${size}px;
+                    height: ${size}px;
+                    top: ${y}px;
+                    left: ${x}px;
+                    pointer-events: none;
+                    z-index: 1;
+                `;
+                
+                this.appendChild(ripple);
+                
+                // Show loading state
+                const originalHTML = this.innerHTML;
+                const cardColor = this.classList.contains('short') ? '#4caf50' : 
+                                 this.classList.contains('medium') ? '#ff9800' : '#9c27b0';
+                
+                this.style.pointerEvents = 'none';
+                this.innerHTML = `
+                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; position: relative; z-index: 2;">
+                        <div style="font-size: 2.5rem; margin-bottom: 1rem; animation: spin 1s linear infinite;">⏳</div>
+                        <div style="font-weight: 600; color: ${cardColor}; margin-bottom: 0.5rem;">Starting Camera...</div>
+                        <div style="font-size: 0.75rem; color: var(--text-light);">Please wait a moment</div>
+                    </div>
+                `;
+                
+                // Remove ripple after animation
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+                
+                // Navigate after showing loading state
+                setTimeout(() => {
+                    window.location.href = this.getAttribute('href');
+                }, 1500);
+            });
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Quick shortcuts for options
+            if (e.key === '1') {
+                window.location.href = '/emotion_detect/5';
+            } else if (e.key === '2') {
+                window.location.href = '/emotion_detect/10';
+            } else if (e.key === '3') {
+                window.location.href = '/emotion_detect/0';
+            } else if (e.key === 'Escape') {
+                window.location.href = '/patient_dashboard';
+            } else if (e.key === 'h' || e.key === 'H') {
+                // Highlight the hero section
+                const hero = document.querySelector('.hero-section');
+                hero.style.animation = 'none';
+                hero.offsetHeight; // Trigger reflow
+                hero.style.animation = 'pulse 2s';
+            }
+        });
+
+        // Add hover effects to emotion items
+        const emotionItems = document.querySelectorAll('.emotion-item');
+        emotionItems.forEach(item => {
+            item.addEventListener('mouseenter', function() {
+                const icon = this.querySelector('.emotion-icon');
+                icon.style.transform = 'scale(1.2)';
+                icon.style.transition = 'transform 0.3s ease';
+            });
+            
+            item.addEventListener('mouseleave', function() {
+                const icon = this.querySelector('.emotion-icon');
+                icon.style.transform = 'scale(1)';
+            });
+        });
+
+        // Add pulse animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+            
+            @keyframes spin {
+                from { transform: rotate(0deg); }
+                to { transform: rotate(360deg); }
+            }
+            
+            @keyframes pulse {
+                0%, 100% { box-shadow: 0 0 0 0 rgba(156, 39, 176, 0.4); }
+                50% { box-shadow: 0 0 0 20px rgba(156, 39, 176, 0); }
+            }
+        `;
+        document.head.appendChild(style);
+    });
+</script>
+
+</body>
+</html>

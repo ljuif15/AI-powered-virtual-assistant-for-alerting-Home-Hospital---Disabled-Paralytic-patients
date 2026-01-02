@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caretaker Registration - AI Assistant</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary-blue: #1a73e8;
+            --primary-green: #0f9d58;
+            --dark-blue: #0d47a1;
+            --light-blue: #e8f0fe;
+            --accent-teal: #1de9b6;
+            --caretaker-color: #17a2b8;
+            --caretaker-gradient: linear-gradient(135deg, #17a2b8, #138496);
+            --gradient-primary: linear-gradient(135deg, var(--primary-blue), var(--primary-green));
+            --gradient-secondary: linear-gradient(135deg, #0d47a1, #0f9d58);
+            --shadow-light: 0 5px 15px rgba(0, 0, 0, 0.08);
+            --shadow-medium: 0 8px 25px rgba(0, 0, 0, 0.12);
+            --shadow-strong: 0 10px 30px rgba(0, 0, 0, 0.15);
+            --radius: 12px;
+        }
+
+        body {
+            background: linear-gradient(135deg, #e3f2fd 0%, #e0f2f1 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Background decorative elements */
+        body::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(135deg, rgba(23, 162, 184, 0.1) 0%, rgba(15, 157, 88, 0.1) 100%);
+            border-radius: 50%;
+            z-index: -1;
+        }
+
+        body::after {
+            content: '';
+            position: absolute;
+            bottom: -80px;
+            left: -80px;
+            width: 400px;
+            height: 400px;
+            background: linear-gradient(135deg, rgba(29, 233, 182, 0.08) 0%, rgba(19, 132, 150, 0.08) 100%);
+            border-radius: 50%;
+            z-index: -1;
+        }
+
+        .registration-container {
+            display: flex;
+            width: 850px;
+            min-height: 550px;
+            background: #ffffff;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-strong);
+            overflow: hidden;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Left Panel - Illustration/Info */
+        .left-panel {
+            flex: 1;
+            background: var(--caretaker-gradient);
+            padding: 50px 40px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .left-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="2"/></svg>');
+            opacity: 0.2;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 30px;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .logo-icon {
+            background: rgba(255, 255, 255, 0.2);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .welcome-text h1 {
+            font-size: 32px;
+            margin-bottom: 15px;
+            line-height: 1.2;
+        }
+
+        .welcome-text p {
+            font-size: 16px;
+            opacity: 0.9;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .benefits {
+            list-style: none;
+            padding: 0;
+            margin-top: 30px;
+        }
+
+        .benefits li {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 18px;
+            font-size: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 12px 15px;
+            border-radius: 8px;
+            backdrop-filter: blur(5px);
+        }
+
+        .benefits li::before {
+            content: "✓";
+            background: rgba(255, 255, 255, 0.3);
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        /* Right Panel - Registration Form */
+        .right-panel {
+            flex: 1;
+            padding: 50px 45px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .form-header h2 {
+            color: var(--caretaker-color);
+            font-size: 32px;
+            margin-bottom: 10px;
+            font-weight: 600;
+            position: relative;
+            display: inline-block;
+        }
+
+        .form-header h2::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: var(--caretaker-gradient);
+            border-radius: 3px;
+        }
+
+        .form-header p {
+            color: #666;
+            font-size: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        label span {
+            color: #e53935;
+        }
+
+        .input-container {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--caretaker-color);
+            font-size: 18px;
+            z-index: 2;
+        }
+
+        input {
+            width: 100%;
+            padding: 16px 15px 16px 50px;
+            border-radius: 8px;
+            border: 1.5px solid #ddd;
+            font-size: 15px;
+            background-color: #fafafa;
+            transition: all 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--caretaker-color);
+            background-color: white;
+            box-shadow: 0 0 0 3px rgba(23, 162, 184, 0.1);
+        }
+
+        button {
+            width: 100%;
+            padding: 16px;
+            background: var(--caretaker-gradient);
+            color: white;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+            box-shadow: 0 4px 12px rgba(23, 162, 184, 0.2);
+            letter-spacing: 0.5px;
+        }
+
+        button:hover {
+            background: linear-gradient(135deg, #138496, #117a8b);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(23, 162, 184, 0.25);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            font-size: 15px;
+            color: #666;
+        }
+
+        .login-link a {
+            text-decoration: none;
+            color: var(--caretaker-color);
+            font-weight: 600;
+            transition: color 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .login-link a:hover {
+            color: #117a8b;
+            text-decoration: underline;
+        }
+
+        .login-link a::after {
+            content: "→";
+            font-size: 16px;
+            transition: transform 0.3s;
+        }
+
+        .login-link a:hover::after {
+            transform: translateX(3px);
+        }
+
+        .back-link {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--dark-blue);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 8px 16px;
+            border-radius: 20px;
+            box-shadow: var(--shadow-light);
+            z-index: 10;
+        }
+
+        .back-link:hover {
+            color: var(--caretaker-color);
+            background: white;
+        }
+
+        .back-link::before {
+            content: "←";
+            font-size: 18px;
+        }
+
+        /* Success message styling */
+        .success-message {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+            border-left: 4px solid #2e7d32;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        /* Error message styling */
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 10px 15px;
+            border-radius: 6px;
+            margin-top: 5px;
+            font-size: 13px;
+            display: none;
+            border-left: 3px solid #c62828;
+        }
+
+        .error-message.show {
+            display: block;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Password strength indicator */
+        .password-strength {
+            margin-top: 5px;
+            height: 5px;
+            border-radius: 3px;
+            background: #eee;
+            overflow: hidden;
+        }
+
+        .strength-bar {
+            height: 100%;
+            width: 0;
+            transition: width 0.3s, background 0.3s;
+            border-radius: 3px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 950px) {
+            .registration-container {
+                width: 90%;
+                max-width: 750px;
+            }
+            
+            .left-panel {
+                padding: 40px 30px;
+            }
+            
+            .right-panel {
+                padding: 40px 30px;
+            }
+            
+            .back-link {
+                top: 20px;
+                left: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .registration-container {
+                flex-direction: column;
+                width: 95%;
+                margin: 20px;
+                min-height: auto;
+            }
+            
+            .left-panel {
+                padding: 30px 25px;
+            }
+            
+            .right-panel {
+                padding: 30px 25px;
+            }
+            
+            .welcome-text h1 {
+                font-size: 26px;
+            }
+            
+            .form-header h2 {
+                font-size: 26px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <a href="/" class="back-link">Back to Home</a>
+    
+    <div class="registration-container">
+        <!-- Left Panel - Information -->
+        <div class="left-panel">
+            <div class="logo">
+                <div class="logo-icon">👨‍⚕️</div>
+                <span>AI Assistant - Caretaker</span>
+            </div>
+            
+            <div class="welcome-text">
+                <h1>Become a Caretaker</h1>
+                <p>Register as a caretaker to monitor and assist patients through our AI-powered platform. Provide better care with real-time insights and communication tools.</p>
+            </div>
+            
+            <ul class="benefits">
+                <li>Monitor multiple patients in real-time</li>
+                <li>Receive alerts and notifications</li>
+                <li>Access patient health analytics</li>
+                <li>Direct communication with patients</li>
+                <li>Schedule and medication tracking</li>
+            </ul>
+            
+            <div style="margin-top: auto; font-size: 14px; opacity: 0.8; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.2);">
+                <p>Already registered? <a href="/caretaker_login" style="color: white; text-decoration: underline;">Sign in here</a></p>
+            </div>
+        </div>
+        
+        <!-- Right Panel - Registration Form -->
+        <div class="right-panel">
+            <div class="form-header">
+                <h2>Caretaker Registration</h2>
+                <p>Create your caretaker account to start managing patients</p>
+            </div>
+            
+            <!-- Success message placeholder -->
+            <div class="success-message" id="successMessage">
+                Registration successful! Redirecting to login...
+            </div>
+            
+            <form method="POST" action="/caretaker_register" id="registrationForm">
+                <div class="form-group">
+                    <label for="name">Caretaker Name <span>*</span></label>
+                    <div class="input-container">
+                        <div class="input-icon">👨‍⚕️</div>
+                        <input type="text" id="name" name="name" placeholder="Enter your full name" required>
+                    </div>
+                    <div class="error-message" id="nameError">Please enter a valid name (minimum 2 characters)</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone">Phone Number <span>*</span></label>
+                    <div class="input-container">
+                        <div class="input-icon">📱</div>
+                        <input 
+                            type="tel" 
+                            id="phone" 
+                            name="phone" 
+                            placeholder="10-digit phone number" 
+                            maxlength="10"
+                            pattern="[0-9]{10}"
+                            required
+                            oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                        >
+                    </div>
+                    <div class="error-message" id="phoneError">Please enter a valid 10-digit phone number</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password <span>*</span></label>
+                    <div class="input-container">
+                        <div class="input-icon">🔒</div>
+                        <input type="password" id="password" name="password" placeholder="Create secure password" required>
+                    </div>
+                    <div class="password-strength">
+                        <div class="strength-bar" id="strengthBar"></div>
+                    </div>
+                    <div class="error-message" id="passwordError">Password must be at least 8 characters with letters and numbers</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirm_password">Confirm Password <span>*</span></label>
+                    <div class="input-container">
+                        <div class="input-icon">🔒</div>
+                        <input type="password" id="confirm_password" name="confirm_password" placeholder="Re-enter your password" required>
+                    </div>
+                    <div class="error-message" id="confirmPasswordError">Passwords do not match</div>
+                </div>
+
+                <div class="form-group">
+                   
+                    <div class="error-message" id="termsError">You must accept the terms and conditions</div>
+                </div>
+
+                <button type="submit" id="submitBtn">Register as Caretaker</button>
+            </form>
+
+            <div class="login-link">
+                Already have an account?
+                <a href="/caretaker_login">Login here</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('registrationForm');
+            const submitBtn = document.getElementById('submitBtn');
+            const passwordInput = document.getElementById('password');
+            const confirmPasswordInput = document.getElementById('confirm_password');
+            const strengthBar = document.getElementById('strengthBar');
+            const errorMessages = document.querySelectorAll('.error-message');
+            const successMessage = document.getElementById('successMessage');
+            
+            // Hide all error messages initially
+            errorMessages.forEach(error => error.style.display = 'none');
+            
+            // Password strength indicator
+            passwordInput.addEventListener('input', function() {
+                const password = this.value;
+                let strength = 0;
+                
+                // Length check
+                if (password.length >= 8) strength += 25;
+                
+                // Contains lowercase
+                if (/[a-z]/.test(password)) strength += 25;
+                
+                // Contains uppercase
+                if (/[A-Z]/.test(password)) strength += 25;
+                
+                // Contains numbers
+                if (/[0-9]/.test(password)) strength += 25;
+                
+                // Update strength bar
+                strengthBar.style.width = strength + '%';
+                
+                // Update color based on strength
+                if (strength < 50) {
+                    strengthBar.style.background = '#e53935'; // Red
+                } else if (strength < 75) {
+                    strengthBar.style.background = '#ff9800'; // Orange
+                } else {
+                    strengthBar.style.background = '#4caf50'; // Green
+                }
+                
+                // Check password match
+                validatePasswordMatch();
+            });
+            
+            // Confirm password validation
+            confirmPasswordInput.addEventListener('input', validatePasswordMatch);
+            
+            function validatePasswordMatch() {
+                const password = passwordInput.value;
+                const confirmPassword = confirmPasswordInput.value;
+                const errorElement = document.getElementById('confirmPasswordError');
+                
+                if (confirmPassword && password !== confirmPassword) {
+                    errorElement.classList.add('show');
+                    confirmPasswordInput.style.borderColor = '#e53935';
+                    confirmPasswordInput.style.boxShadow = '0 0 0 3px rgba(229, 57, 53, 0.1)';
+                    return false;
+                } else {
+                    errorElement.classList.remove('show');
+                    if (confirmPassword) {
+                        confirmPasswordInput.style.borderColor = '#4caf50';
+                        confirmPasswordInput.style.boxShadow = '0 0 0 3px rgba(76, 175, 80, 0.1)';
+                    } else {
+                        confirmPasswordInput.style.borderColor = '#ddd';
+                        confirmPasswordInput.style.boxShadow = 'none';
+                    }
+                    return true;
+                }
+            }
+            
+            // Real-time validation for each field
+            const fields = {
+                name: {
+                    element: document.getElementById('name'),
+                    error: document.getElementById('nameError'),
+                    validate: (value) => value.trim().length >= 2 && /^[a-zA-Z\s]+$/.test(value)
+                },
+                phone: {
+                    element: document.getElementById('phone'),
+                    error: document.getElementById('phoneError'),
+                    validate: (value) => /^[0-9]{10}$/.test(value)
+                },
+                password: {
+                    element: passwordInput,
+                    error: document.getElementById('passwordError'),
+                    validate: (value) => value.length >= 8 && /[a-zA-Z]/.test(value) && /[0-9]/.test(value)
+                },
+                terms: {
+                    element: document.getElementById('terms'),
+                    error: document.getElementById('termsError'),
+                    validate: (value) => value.checked
+                }
+            };
+            
+            // Add validation on blur for each field
+            Object.values(fields).forEach(field => {
+                if (field.element.type === 'checkbox') {
+                    field.element.addEventListener('change', function() {
+                        validateField(field);
+                    });
+                } else {
+                    field.element.addEventListener('blur', function() {
+                        validateField(field);
+                    });
+                    
+                    field.element.addEventListener('input', function() {
+                        // Hide error when user starts typing again
+                        field.error.classList.remove('show');
+                        this.style.borderColor = '#ddd';
+                        this.style.boxShadow = 'none';
+                    });
+                }
+            });
+            
+            function validateField(field) {
+                let value;
+                if (field.element.type === 'checkbox') {
+                    value = field.element;
+                } else {
+                    value = field.element.value.trim();
+                }
+                
+                const isValid = field.validate(value);
+                
+                if (!isValid) {
+                    field.error.classList.add('show');
+                    if (field.element.type !== 'checkbox') {
+                        field.element.style.borderColor = '#e53935';
+                        field.element.style.boxShadow = '0 0 0 3px rgba(229, 57, 53, 0.1)';
+                    }
+                    return false;
+                } else {
+                    field.error.classList.remove('show');
+                    if (field.element.type !== 'checkbox') {
+                        if (value) {
+                            field.element.style.borderColor = '#4caf50';
+                            field.element.style.boxShadow = '0 0 0 3px rgba(76, 175, 80, 0.1)';
+                        } else {
+                            field.element.style.borderColor = '#ddd';
+                            field.element.style.boxShadow = 'none';
+                        }
+                    }
+                    return true;
+                }
+            }
+            
+            // Form submission
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                let isValid = true;
+                
+                // Validate all fields
+                Object.values(fields).forEach(field => {
+                    if (!validateField(field)) {
+                        isValid = false;
+                    }
+                });
+                
+                // Validate password match
+                if (!validatePasswordMatch()) {
+                    isValid = false;
+                }
+                
+                if (isValid) {
+                    // Show loading state
+                    submitBtn.textContent = 'Registering...';
+                    submitBtn.disabled = true;
+                    
+                    // In a real app, this would be an AJAX call
+                    // For demo, simulate API call
+                    setTimeout(() => {
+                        successMessage.classList.add('show');
+                        
+                        // Simulate registration success and redirect
+                        setTimeout(() => {
+                            // In real app, this would redirect to login or dashboard
+                            window.location.href = '/caretaker_login?registered=true';
+                        }, 2000);
+                    }, 1500);
+                } else {
+                    // Scroll to first error
+                    const firstError = document.querySelector('.error-message.show');
+                    if (firstError) {
+                        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }
+            });
+            
+            // Auto-format phone number
+            const phoneField = fields.phone.element;
+            phoneField.addEventListener('input', function() {
+                // Keep only numbers
+                this.value = this.value.replace(/[^0-9]/g, '');
+            });
+            
+            // Demo auto-fill for testing (double-click on name field)
+            document.getElementById('name').addEventListener('dblclick', function() {
+                this.value = 'John Caretaker';
+                phoneField.value = '9876543210';
+                passwordInput.value = 'Caretaker123';
+                confirmPasswordInput.value = 'Caretaker123';
+                document.getElementById('terms').checked = true;
+                
+                // Hide any errors
+                errorMessages.forEach(error => error.classList.remove('show'));
+                
+                // Show validation success
+                Object.values(fields).forEach(field => {
+                    if (field.element.type !== 'checkbox') {
+                        field.element.style.borderColor = '#4caf50';
+                        field.element.style.boxShadow = '0 0 0 3px rgba(76, 175, 80, 0.1)';
+                    }
+                });
+                confirmPasswordInput.style.borderColor = '#4caf50';
+                confirmPasswordInput.style.boxShadow = '0 0 0 3px rgba(76, 175, 80, 0.1)';
+                
+                // Update password strength
+                strengthBar.style.width = '100%';
+                strengthBar.style.background = '#4caf50';
+            });
+        });
+    </script>
+</body>
+</html>

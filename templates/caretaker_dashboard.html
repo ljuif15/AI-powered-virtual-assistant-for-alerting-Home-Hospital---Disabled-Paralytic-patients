@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caretaker Dashboard - AI Assistant</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --primary-blue: #1a73e8;
+            --primary-green: #0f9d58;
+            --caretaker-blue: #17a2b8;
+            --caretaker-dark: #138496;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --success: #28a745;
+            --info: #17a2b8;
+            --light-bg: #f8f9fa;
+            --border-color: #dee2e6;
+            --shadow-light: 0 2px 8px rgba(0,0,0,0.1);
+            --shadow-medium: 0 4px 12px rgba(0,0,0,0.15);
+            --radius: 10px;
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            background: linear-gradient(135deg, #e3f2fd 0%, #f0f8ff 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header Styles */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 20px 30px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-light);
+            margin-bottom: 25px;
+        }
+
+        .header-left h1 {
+            color: var(--caretaker-blue);
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        .header-left p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .stats-card {
+            background: var(--caretaker-blue);
+            color: white;
+            padding: 12px 20px;
+            border-radius: var(--radius);
+            text-align: center;
+            min-width: 120px;
+        }
+
+        .stats-card .number {
+            font-size: 24px;
+            font-weight: bold;
+            display: block;
+        }
+
+        .stats-card .label {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        /* Main Content Grid */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 1200px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Card Styles */
+        .card {
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-light);
+            padding: 25px;
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-medium);
+            transform: translateY(-2px);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .card-title {
+            color: var(--caretaker-dark);
+            font-size: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .badge {
+            background: var(--warning);
+            color: white;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        /* Message Tabs */
+        .message-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 8px 20px;
+            background: var(--light-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            color: #333;
+            display: inline-block;
+        }
+
+        .tab-btn:hover {
+            background: #e9ecef;
+            text-decoration: none;
+        }
+
+        .tab-btn.active {
+            background: var(--caretaker-blue);
+            color: white;
+            border-color: var(--caretaker-blue);
+        }
+
+        /* Message Styles */
+        .message-list {
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .message-item {
+            background: var(--light-bg);
+            border-left: 4px solid;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 0 var(--radius) var(--radius) 0;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .message-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .message-item.gesture { border-left-color: #9c27b0; }
+        .message-item.voice { border-left-color: #28a745; }
+        .message-item.emotion { border-left-color: #007bff; }
+        .message-item.task { border-left-color: #ff9800; }
+
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .message-patient {
+            font-weight: 600;
+            color: #333;
+            font-size: 15px;
+        }
+
+        .message-type {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .gesture-type { background: #9c27b0; }
+        .voice-type { background: #28a745; }
+        .emotion-type { background: #007bff; }
+        .task-type { background: #ff9800; }
+
+        .message-content {
+            color: #555;
+            font-size: 14px;
+            margin-bottom: 5px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .message-time {
+            color: #888;
+            font-size: 12px;
+            text-align: right;
+            margin-top: 10px;
+        }
+
+        .message-actions {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            display: flex;
+            gap: 5px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .message-item:hover .message-actions {
+            opacity: 1;
+        }
+
+        .delete-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            transition: var(--transition);
+        }
+
+        .delete-btn:hover {
+            background: #c82333;
+            transform: scale(1.1);
+        }
+
+        /* Task Styles */
+        .task-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .task-item {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: var(--transition);
+        }
+
+        .task-item:hover {
+            border-color: var(--caretaker-blue);
+            box-shadow: var(--shadow-light);
+        }
+
+        .task-info h4 {
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 16px;
+        }
+
+        .task-details {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .task-patient {
+            color: var(--caretaker-blue);
+            font-weight: 500;
+        }
+
+        .task-status {
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-pending { background: #ffebee; color: #dc3545; }
+        .status-completed { background: #e8f5e9; color: #28a745; }
+
+        .task-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 30px;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border-radius: var(--radius);
+            border: none;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--caretaker-blue);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--caretaker-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .btn-info {
+            background: var(--info);
+            color: white;
+        }
+
+        .btn-info:hover {
+            background: #138496;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        /* Modal for Message Details */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal {
+            background: white;
+            border-radius: var(--radius);
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+
+        .modal-header {
+            background: #9c27b0;
+            color: white;
+            padding: 20px;
+            border-radius: var(--radius) var(--radius) 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 20px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            padding: 25px;
+        }
+
+        .modal-section {
+            margin-bottom: 20px;
+        }
+
+        .modal-section h4 {
+            color: var(--caretaker-dark);
+            margin-bottom: 15px;
+            font-size: 18px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+        }
+
+        .modal-detail {
+            display: grid;
+            grid-template-columns: 100px 1fr;
+            margin-bottom: 12px;
+            align-items: start;
+        }
+
+        .modal-label {
+            font-weight: 600;
+            color: #666;
+        }
+
+        .modal-value {
+            color: #333;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: flex-end;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Notification Bell */
+        .notification-bell {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .bell-icon {
+            font-size: 24px;
+            color: var(--caretaker-blue);
+        }
+
+        .notification-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--danger);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        /* Patient List */
+        .patient-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .patient-card {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 20px;
+            text-align: center;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .patient-card:hover {
+            border-color: var(--caretaker-blue);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-light);
+        }
+
+        .patient-avatar {
+            width: 70px;
+            height: 70px;
+            background: var(--caretaker-blue);
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            color: white;
+        }
+
+        .patient-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .patient-info {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #888;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+    </style>
+</head>
+
+
+<body>
+
+    <!-- 🔔 Alert Sound -->
+<audio id="alertSound">
+    <source src="{{ url_for('static', filename='sounds/alert.mp3') }}" type="audio/mpeg">
+</audio>
+    <div class="dashboard-container">
+        <!-- Header Section -->
+        <div class="header">
+            <div class="header-left">
+                <h1>👨‍⚕️ Caretaker Dashboard</h1>
+                <p>Welcome back, {{ caretaker_name }}! Manage your patients and monitor their activities.</p>
+            </div>
+            <div class="header-right">
+                <div class="stats-card" style="background: #007bff;">
+                    <span class="number">{{ total_patients }}</span>
+                    <span class="label">Patients</span>
+                </div>
+                <div class="stats-card" style="background: #28a745;">
+                    <span class="number">{{ recent_alerts }}</span>
+                    <span class="label">New Alerts</span>
+                </div>
+                <div class="stats-card" style="background: #ff9800;">
+                    <span class="number">{{ pending_tasks }}</span>
+                    <span class="label">Pending Tasks</span>
+                </div>
+                <div class="notification-bell">
+                    <span class="bell-icon">🔔</span>
+                    {% if recent_alerts > 0 %}
+                    <span class="notification-count">{{ recent_alerts }}</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="content-grid">
+            <!-- Left Column: Messages -->
+            <div class="message-column">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">📨 Patient Messages</h3>
+                        <span class="badge">{{ recent_alerts }}</span>
+                    </div>
+                    
+                    <!-- Message Type Tabs -->
+                    <div class="message-tabs">
+                        <a href="/caretaker_dashboard?type=gesture" class="tab-btn {% if request.args.get('type', 'gesture') == 'gesture' %}active{% endif %}">
+                            ✋ Gesture ({{ recent_alerts if request.args.get('type', 'gesture') == 'gesture' else gesture_count }})
+                        </a>
+                        <a href="/caretaker_dashboard?type=voice" class="tab-btn {% if request.args.get('type') == 'voice' %}active{% endif %}">
+                            🎤 Voice ({{ voice_count }})
+                        </a>
+                        <a href="/caretaker_dashboard?type=emotion" class="tab-btn {% if request.args.get('type') == 'emotion' %}active{% endif %}">
+                            😊 Emotion ({{ emotion_count }})
+                        </a>
+                        <a href="/caretaker_dashboard?type=task" class="tab-btn {% if request.args.get('type') == 'task' %}active{% endif %}">
+                            ✅ Task ({{ task_count }})
+                        </a>
+                        <a href="/caretaker_dashboard?type=all" class="tab-btn {% if request.args.get('type') == 'all' %}active{% endif %}">
+                            📋 All ({{ all_count }})
+                        </a>
+                    </div>
+                    
+                    <!-- Messages List -->
+                    <div class="message-list" id="messagesContainer">
+                        {% for m in messages %}
+                        <div class="message-item {{ m.msg_type }}" 
+                             onclick="showMessageDetail('{{ m.id }}', '{{ m.patient_name }}', '{{ m.msg_type }}', '{{ m.message|replace("'", "\\'")|replace('"', '\\"') }}', '{{ m.timestamp }}')">
+                            <div class="message-actions">
+                                <button class="delete-btn" onclick="deleteMessage(event, '{{ m.id }}')" title="Delete Message">×</button>
+                            </div>
+                            <div class="message-header">
+                                <span class="message-patient">{{ m.patient_name }}</span>
+                                <span class="message-type {{ m.msg_type }}-type">{{ m.msg_type|capitalize }}</span>
+                            </div>
+                            <div class="message-content">{{ m.message }}</div>
+                            <div class="message-time">{{ m.timestamp }}</div>
+                        </div>
+                        {% else %}
+                        <div class="empty-state">
+                            <div>📭</div>
+                            <p>No {{ current_type }} messages yet</p>
+                            <small>When patients send {{ current_type }} messages, they will appear here</small>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Tasks & Patients -->
+            <div class="right-column">
+                <!-- Task Scheduling -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">📋 Task Scheduling</h3>
+                        <span class="badge">{{ tasks|length }}</span>
+                    </div>
+                    <div class="task-list">
+                        {% for t in tasks %}
+                        <div class="task-item">
+                            <div class="task-info">
+                                <h4>{{ t.tablet_name }}</h4>
+                                <div class="task-details">
+                                    Patient: <span class="task-patient">{{ t.patient_name }}</span> | 
+                                    Time: {{ t.task_time }}
+                                </div>
+                                <span class="task-status {% if t.status == 'Completed' %}status-completed{% else %}status-pending{% endif %}">
+                                    {{ t.status }}
+                                </span>
+                            </div>
+                            <div class="task-actions">
+                                <button class="btn btn-primary" style="padding: 6px 12px; font-size: 13px;" 
+                                        onclick="viewPatient('{{ t.patient_name }}')">View</button>
+                                <a href="/delete_task/{{ t.id }}" class="btn btn-danger" 
+                                   style="padding: 6px 12px; font-size: 13px;"
+                                   onclick="return confirm('Are you sure you want to delete this task?')">Delete</a>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="empty-state">
+                            <div>📝</div>
+                            <p>No tasks scheduled</p>
+                            <small>Add tasks using the "Add New Task" button</small>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Patient List -->
+                <div class="card" style="margin-top: 25px;">
+                    <div class="card-header">
+                        <h3 class="card-title">👥 Your Patients</h3>
+                    </div>
+                    <div class="patient-grid">
+                        {% for patient in patients %}
+                        <div class="patient-card" onclick="viewPatient('{{ patient.name }}')">
+                            <div class="patient-avatar">👤</div>
+                            <div class="patient-name">{{ patient.name }}</div>
+                            
+                        </div>
+                        {% else %}
+                        <div class="empty-state" style="grid-column: 1/-1;">
+                            <div>👥</div>
+                            <p>No patients assigned yet</p>
+                            <small>Patients will appear here once registered</small>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <a href="/add_task" class="btn btn-success">
+                <span>➕</span> Add New Task
+            </a>
+            <a href="/" class="btn btn-primary">
+                <span>🏠</span> Home
+            </a>
+            <a href="/logout" class="btn btn-danger" onclick="return confirm('Are you sure you want to logout?')">
+                <span>🚪</span> Logout
+            </a>
+        </div>
+    </div>
+
+    <!-- Message Detail Modal -->
+    <div class="modal-overlay" id="messageModal">
+        <div class="modal">
+            <div class="modal-header" id="modalHeader">
+                <h3 id="modalTitle">Message Details</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-content">
+                <div class="modal-section">
+                    <h4>Message Information</h4>
+                    <div class="modal-detail">
+                        <div class="modal-label">Patient:</div>
+                        <div class="modal-value" id="detailPatient"></div>
+                    </div>
+                    <div class="modal-detail">
+                        <div class="modal-label">Type:</div>
+                        <div class="modal-value" id="detailType"></div>
+                    </div>
+                    <div class="modal-detail">
+                        <div class="modal-label">Time:</div>
+                        <div class="modal-value" id="detailTime"></div>
+                    </div>
+                </div>
+                
+                <div class="modal-section">
+                    <h4>Message Content</h4>
+                    <div id="detailContent" style="background: #f8f9fa; padding: 15px; border-radius: 8px; white-space: pre-line; font-size: 16px; line-height: 1.5;"></div>
+                </div>
+                
+                <div class="modal-actions">
+                    <button class="btn btn-danger" id="deleteModalBtn" onclick="deleteModalMessage()">Delete Message</button>
+                    <button class="btn btn-primary" onclick="closeModal()">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+/* =====================================================
+   🔔 REAL-TIME ALERT SYSTEM (FINAL & FIXED)
+===================================================== */
+
+// 🔓 Unlock alert sound after first user interaction
+let soundUnlocked = false;
+
+document.addEventListener("click", () => {
+    if (!soundUnlocked) {
+        const sound = document.getElementById("alertSound");
+        if (!sound) return;
+
+        sound.play().then(() => {
+            sound.pause();
+            sound.currentTime = 0;
+            soundUnlocked = true;
+            console.log("🔊 Alert sound unlocked");
+        }).catch(() => {});
+    }
+}, { once: true });
+
+
+// 🚨 Check for new alerts from backend
+function checkRealtimeAlert() {
+    fetch("/realtime_alert")
+        .then(res => res.json())
+        .then(data => {
+            if (data.new) {
+                const sound = document.getElementById("alertSound");
+                if (soundUnlocked && sound) {
+                    sound.currentTime = 0;
+                    sound.play();
+                }
+
+                // Visual alert
+                document.body.style.border = "6px solid red";
+                setTimeout(() => {
+                    document.body.style.border = "none";
+                }, 2000);
+            }
+        })
+        .catch(err => console.error("Alert error:", err));
+}
+
+// ⏱ Poll every 2 seconds (near real-time)
+setInterval(checkRealtimeAlert, 2000);
+
+
+/* =====================================================
+   📨 MESSAGE MODAL & UI LOGIC
+===================================================== */
+
+let currentMessageId = null;
+let currentMessageType = null;
+
+// Show message details modal
+function showMessageDetail(id, patient, type, message, timestamp) {
+    try {
+        currentMessageId = id;
+        currentMessageType = type;
+
+        document.getElementById('detailPatient').textContent = patient || 'Unknown';
+        document.getElementById('detailType').textContent = type ? type.charAt(0).toUpperCase() + type.slice(1) : 'Unknown';
+        document.getElementById('detailTime').textContent = timestamp || 'N/A';
+        document.getElementById('detailContent').textContent = message || 'No message content';
+
+        const modalHeader = document.getElementById('modalHeader');
+        const typeColors = {
+            'gesture': '#9c27b0',
+            'voice': '#28a745',
+            'emotion': '#007bff',
+            'task': '#ff9800'
+        };
+        modalHeader.style.background = typeColors[type] || '#9c27b0';
+
+        document.getElementById('modalTitle').textContent =
+            `${type ? type.charAt(0).toUpperCase() + type.slice(1) : 'Message'} Details`;
+
+        document.getElementById('deleteModalBtn').style.display =
+            id && id !== '0' ? 'block' : 'none';
+
+        document.getElementById('messageModal').classList.add('active');
+    } catch (error) {
+        console.error('Modal error:', error);
+        alert('Error showing message details');
+    }
+}
+
+// Close modal
+function closeModal() {
+    document.getElementById('messageModal').classList.remove('active');
+    currentMessageId = null;
+    currentMessageType = null;
+}
+
+// Delete message from list
+function deleteMessage(event, messageId) {
+    event.stopPropagation();
+    if (confirm('Are you sure you want to delete this message?')) {
+        window.location.href = `/delete_message/${messageId}`;
+    }
+}
+
+// Delete message from modal
+function deleteModalMessage() {
+    if (!currentMessageId || currentMessageId === '0') {
+        alert('Cannot delete this message');
+        return;
+    }
+    if (confirm('Are you sure you want to delete this message?')) {
+        window.location.href = `/delete_message/${currentMessageId}`;
+    }
+}
+
+// View patient profile
+function viewPatient(patientName) {
+    window.location.href = `/view_patient/${encodeURIComponent(patientName)}`;
+}
+
+// Close modal when clicking outside
+document.getElementById('messageModal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+});
+
+// Close modal with ESC key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeModal();
+});
+
+// Notification bell
+document.querySelector('.notification-bell')?.addEventListener('click', () => {
+    window.location.href = '/caretaker_dashboard?type=gesture';
+});
+
+// Animate messages on load
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.message-item').forEach((item, index) => {
+        item.style.animationDelay = `${index * 0.1}s`;
+        item.style.animation = 'fadeInUp 0.5s ease forwards';
+    });
+});
+
+// Add animation CSS dynamically
+const style = document.createElement('style');
+style.textContent = `
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}`;
+document.head.appendChild(style);
+
+</script>
+
+</body>
+</html>

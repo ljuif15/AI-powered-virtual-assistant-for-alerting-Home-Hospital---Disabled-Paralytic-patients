@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Message - AI Health Assistant</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        :root {
+            --primary-gradient: linear-gradient(135deg, #8366ea 0%, #764ba2 100%);
+            --voice-gradient: linear-gradient(135deg, #9c27b0 0%, #673ab7 100%);
+            --recording-gradient: linear-gradient(135deg, #ff4081 0%, #ff5722 100%);
+            --processing-gradient: linear-gradient(135deg, #ff8a00 0%, #ffc400 100%);
+            --success-gradient: linear-gradient(135deg, #00c9ff 0%, #92fe9d 100%);
+            
+            --purple-light: #9c27b0;
+            --purple-dark: #7b1fa2;
+            --violet-light: #673ab7;
+            --violet-dark: #512da8;
+            --accent-pink: #ff4081;
+            --accent-orange: #ff5722;
+            
+            --light-bg: linear-gradient(135deg, #f8f0ff 0%, #f0f4ff 100%);
+            --card-bg: #ffffff;
+            --text-dark: #1e293b;
+            --text-light: #64748b;
+            --border-color: #e2e8f0;
+            
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+            --shadow-lg: 0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);
+            --shadow-xl: 0 20px 40px -15px rgba(0,0,0,0.15);
+            --shadow-voice: 0 10px 30px rgba(156, 39, 176, 0.2);
+            --shadow-recording: 0 10px 30px rgba(255, 65, 108, 0.3);
+            
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            --radius-full: 9999px;
+        }
+
+        body {
+            background: var(--light-bg);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: var(--text-dark);
+        }
+
+        /* ================= HEADER ================= */
+        .header {
+            background: var(--voice-gradient);
+            color: white;
+            padding: 1.25rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow-lg);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            background-color: rgba(156, 39, 176, 0.95);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo {
+            width: 48px;
+            height: 48px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(5px);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            border: 2px solid rgba(255, 255, 255, 0.25);
+        }
+
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo-text h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+        }
+
+        .logo-text span {
+            font-size: 0.75rem;
+            opacity: 0.9;
+            font-weight: 400;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            text-decoration: none;
+            border-radius: var(--radius-full);
+            font-weight: 500;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            backdrop-filter: blur(5px);
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        /* ================= MAIN CONTENT ================= */
+        .main-content {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem 1.5rem;
+        }
+
+        /* ================= MAIN CONTAINER ================= */
+        .main-container {
+            background: var(--card-bg);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-xl);
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 600px;
+            position: relative;
+            overflow: hidden;
+            animation: fadeIn 0.8s ease-out;
+            border: 1px solid var(--border-color);
+        }
+
+        @keyframes fadeIn {
+            from { 
+                opacity: 0; 
+                transform: translateY(30px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+
+        .main-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--voice-gradient);
+        }
+
+        /* ================= VOICE VISUALIZATION ================= */
+        .voice-visual-container {
+            margin-bottom: 2.5rem;
+        }
+
+        .voice-visual {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #f9f0ff, #ffffff);
+            border: 3px solid rgba(156, 39, 176, 0.1);
+            margin: 0 auto 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-voice);
+        }
+
+        .voice-visual.recording {
+            animation: recordingPulse 2s infinite;
+            border-color: rgba(255, 65, 108, 0.3);
+            box-shadow: var(--shadow-recording);
+            background: linear-gradient(145deg, #fff0f3, #ffffff);
+        }
+
+        @keyframes recordingPulse {
+            0% { 
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(255, 65, 108, 0.4);
+            }
+            70% { 
+                transform: scale(1.02);
+                box-shadow: 0 0 0 20px rgba(255, 65, 108, 0);
+            }
+            100% { 
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(255, 65, 108, 0);
+            }
+        }
+
+        .voice-icon {
+            font-size: 4rem;
+            background: var(--voice-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            transition: all 0.5s ease;
+        }
+
+        .voice-visual.recording .voice-icon {
+            background: var(--recording-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: microphoneBounce 1s infinite;
+        }
+
+        @keyframes microphoneBounce {
+            0%, 100% { 
+                transform: scale(1) rotate(0deg); 
+            }
+            25% { 
+                transform: scale(1.1) rotate(-5deg); 
+            }
+            75% { 
+                transform: scale(1.1) rotate(5deg); 
+            }
+        }
+
+        /* ================= TITLE & DESCRIPTION ================= */
+        .title-section {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .title {
+            font-size: 2.25rem;
+            font-weight: 800;
+            margin-bottom: 0.75rem;
+            background: var(--voice-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: var(--text-light);
+            font-size: 1.125rem;
+            line-height: 1.6;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        /* ================= WAVEFORM VISUALIZATION ================= */
+        .visualization-container {
+            margin: 2rem 0;
+            position: relative;
+        }
+
+        .visualization {
+            display: flex;
+            justify-content: center;
+            gap: 3px;
+            height: 80px;
+            align-items: flex-end;
+            padding: 0 1rem;
+        }
+
+        .bar {
+            width: 8px;
+            background: var(--voice-gradient);
+            border-radius: 4px;
+            transition: height 0.1s ease-out;
+            min-height: 10px;
+        }
+
+        .recording .bar {
+            background: var(--recording-gradient);
+        }
+
+        .waveform-label {
+            text-align: center;
+            font-size: 0.875rem;
+            color: var(--text-light);
+            margin-top: 0.5rem;
+            font-weight: 500;
+        }
+
+        /* ================= STATUS DISPLAY ================= */
+        .status-container {
+            background: linear-gradient(135deg, #f8fafc, #ffffff);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border: 1px solid var(--border-color);
+            min-height: 72px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+
+        .status-icon {
+            font-size: 1.5rem;
+        }
+
+        .status.ready {
+            color: var(--purple-light);
+        }
+
+        .status.recording {
+            color: #ff4081;
+        }
+
+        .status.processing {
+            color: #ff8a00;
+        }
+
+        .status.success {
+            color: #00c9ff;
+        }
+
+        /* ================= CONTROLS ================= */
+        .controls-section {
+            margin: 2rem 0;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            padding: 1.25rem 2.5rem;
+            font-size: 1.125rem;
+            font-weight: 600;
+            border: none;
+            border-radius: var(--radius-lg);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            min-width: 180px;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .control-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.1);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .control-btn:hover::before {
+            opacity: 1;
+        }
+
+        .start-btn {
+            background: var(--voice-gradient);
+            color: white;
+            box-shadow: var(--shadow-md);
+        }
+
+        .start-btn:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stop-btn {
+            background: var(--recording-gradient);
+            color: white;
+            box-shadow: var(--shadow-md);
+        }
+
+        .stop-btn:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .control-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        /* ================= INSTRUCTIONS ================= */
+        .instructions-section {
+            background: linear-gradient(135deg, #f9f0ff, #f8fafc);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            margin-top: 2rem;
+            border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .instructions-section::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--voice-gradient);
+        }
+
+        .instructions-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .instructions-header h3 {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .instructions-icon {
+            font-size: 1.25rem;
+            background: var(--voice-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .instructions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.75rem;
+        }
+
+        .instruction-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+
+        .instruction-icon {
+            width: 24px;
+            height: 24px;
+            background: var(--voice-gradient);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            flex-shrink: 0;
+        }
+
+        .instruction-text {
+            font-size: 0.875rem;
+            color: var(--text-light);
+            line-height: 1.5;
+        }
+
+        /* ================= TIMER ================= */
+        .timer-container {
+            text-align: center;
+            margin: 1rem 0;
+        }
+
+        .timer {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--purple-light);
+            font-family: 'Courier New', monospace;
+        }
+
+        .recording .timer {
+            color: #ff4081;
+            animation: timerPulse 1s infinite;
+        }
+
+        @keyframes timerPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        /* ================= FOOTER ================= */
+        .footer {
+            text-align: center;
+            padding: 1.5rem;
+            color: var(--text-light);
+            font-size: 0.875rem;
+            background: linear-gradient(135deg, #f8fafc, #ffffff);
+            border-top: 1px solid var(--border-color);
+            margin-top: auto;
+        }
+
+        .privacy-note {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(156, 39, 176, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-full);
+            margin-top: 0.5rem;
+            font-size: 0.75rem;
+            color: var(--purple-light);
+            border: 1px solid rgba(156, 39, 176, 0.2);
+        }
+
+        /* ================= RESPONSIVE DESIGN ================= */
+        @media (max-width: 768px) {
+            .header {
+                padding: 1rem;
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .header-left {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+
+            .main-content {
+                padding: 1rem;
+            }
+
+            .main-container {
+                padding: 1.5rem;
+            }
+
+            .title {
+                font-size: 1.875rem;
+            }
+
+            .subtitle {
+                font-size: 1rem;
+            }
+
+            .voice-visual {
+                width: 160px;
+                height: 160px;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .control-btn {
+                width: 100%;
+                max-width: 300px;
+                padding: 1rem 2rem;
+            }
+
+            .visualization {
+                height: 60px;
+            }
+
+            .bar {
+                width: 6px;
+            }
+
+            .timer {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* ================= SCROLLBAR ================= */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--voice-gradient);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #8e24aa, #5e35b1);
+        }
+    </style>
+
+    <!-- Add Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- ================= HEADER ================= -->
+<div class="header">
+    <div class="header-left">
+        <div class="logo">🎙️</div>
+        <div class="logo-text">
+            <h2>AI Voice Assistant</h2>
+            <span>Speech-to-Text Messaging</span>
+        </div>
+    </div>
+    <a href="/patient_dashboard" class="back-btn">
+        <span>←</span> Back to Dashboard
+    </a>
+</div>
+
+<!-- ================= MAIN CONTENT ================= -->
+<div class="main-content">
+    <div class="main-container">
+        
+        <!-- Voice Visualization -->
+        <div class="voice-visual-container">
+            <div class="voice-visual" id="voiceVisual">
+                <div class="voice-icon">🎙️</div>
+            </div>
+        </div>
+
+        <!-- Title & Description -->
+        <div class="title-section">
+            <h1 class="title">Voice Message</h1>
+            <p class="subtitle">Speak clearly and your message will be converted to text and sent to your caretaker</p>
+        </div>
+
+        <!-- Timer -->
+        <div class="timer-container">
+            <div class="timer" id="timer">00:00</div>
+        </div>
+
+        <!-- Waveform Visualization -->
+        <div class="visualization-container">
+            <div class="visualization" id="visualization">
+                <!-- Bars will be generated by JavaScript -->
+            </div>
+            <div class="waveform-label">Voice Waveform</div>
+        </div>
+
+        <!-- Status Display -->
+        <div class="status-container">
+            <div class="status ready" id="status">
+                <span class="status-icon">🎤</span>
+                <span class="status-text">Ready to record</span>
+            </div>
+        </div>
+
+                <!-- ================= RECOGNIZED TEXT DISPLAY ================= -->
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="status-container" style="margin-top: 1rem;">
+                <div class="status success">
+                    <span class="status-icon">🗣</span>
+                    <span class="status-text">
+                        Recognized Text: <strong>{{ messages[0] }}</strong>
+                    </span>
+                </div>
+            </div>
+        {% endif %}
+        {% endwith %}
+
+
+
+        <!-- Instructions -->
+        <div class="instructions-section">
+            <div class="instructions-header">
+                <div class="instructions-icon">💡</div>
+                <h3>How to use:</h3>
+            </div>
+            
+            <div class="instructions-grid">
+                <div class="instruction-item">
+                    <div class="instruction-icon">1</div>
+                    <div class="instruction-text">Find a quiet environment</div>
+                </div>
+                <div class="instruction-item">
+                    <div class="instruction-icon">2</div>
+                    <div class="instruction-text">Speak clearly at normal volume</div>
+                </div>
+                <div class="instruction-item">
+                    <div class="instruction-icon">3</div>
+                    <div class="instruction-text">Keep microphone close</div>
+                </div>
+                <div class="instruction-item">
+                    <div class="instruction-icon">4</div>
+                    <div class="instruction-text">Press "Stop & Send" when done</div>
+                </div>
+                <div class="instruction-item">
+                    <div class="instruction-icon">5</div>
+                    <div class="instruction-text">Message sent instantly</div>
+                </div>
+            </div>
+        </div>
+<audio id="alertSound">
+    <source src="/static/sounds/alert.wav" type="audio/wav">
+</audio>
+
+    </div>
+</div>
+
+<!-- ================= FOOTER ================= -->
+<div class="footer">
+    <p>Your privacy is protected - voice is converted to text locally</p>
+    <div class="privacy-note">
+        <span>🔒</span>
+        All voice data is processed securely and never stored
+    </div>
+</div>
+<script>
+/* ================= STATE ================= */
+let audioStream = null;
+let mediaRecorder = null;
+let audioChunks = [];
+let isRecording = false;
+
+let visualizationInterval;
+let timerInterval;
+let seconds = 0;
+
+const MAX_RECORD_TIME = 6; // 🔴 6 seconds
+
+/* ================= ALERT SOUND ================= */
+const alertSound = document.getElementById("alertSound");
+
+/* ================= REALTIME ALERT CHECK ================= */
+async function checkRealtimeAlert() {
+    try {
+        const res = await fetch("/realtime_alert");
+        const data = await res.json();
+
+        if (data.new === true) {
+            console.log("🚨 Emergency alert received");
+            alertSound.currentTime = 0;
+            alertSound.play();
+
+            if (navigator.vibrate) {
+                navigator.vibrate([500, 300, 500]);
+            }
+        }
+    } catch (e) {
+        console.error("Alert check failed", e);
+    }
+}
+
+/* ================= VISUAL BARS ================= */
+function generateVisualizationBars() {
+    const visualization = document.getElementById("visualization");
+    visualization.innerHTML = "";
+    for (let i = 0; i < 25; i++) {
+        const bar = document.createElement("div");
+        bar.className = "bar";
+        visualization.appendChild(bar);
+    }
+}
+
+function animateVisualization() {
+    document.querySelectorAll(".bar").forEach(bar => {
+        bar.style.transform = `scaleY(${0.2 + Math.random() * 0.8})`;
+    });
+}
+
+/* ================= TIMER ================= */
+function updateTimer() {
+    seconds++;
+
+    document.getElementById("timer").textContent =
+        `00:${seconds.toString().padStart(2, "0")}`;
+
+    if (seconds >= MAX_RECORD_TIME) {
+        stopRecording();
+    }
+}
+
+/* ================= AUTO START RECORD ================= */
+async function startRecording() {
+    if (isRecording) return;
+
+    try {
+        audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    } catch {
+        alert("Microphone permission denied");
+        return;
+    }
+
+    mediaRecorder = new MediaRecorder(audioStream);
+    audioChunks = [];
+
+    mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+    mediaRecorder.start();
+
+    isRecording = true;
+    seconds = 0;
+
+    document.getElementById("voiceVisual").classList.add("recording");
+    document.getElementById("visualization").classList.add("recording");
+    document.getElementById("timer").classList.add("recording");
+
+    document.getElementById("status").innerHTML =
+        '<span class="status-icon">🔴</span><span class="status-text">Listening...</span>';
+    document.getElementById("status").className = "status recording";
+
+    visualizationInterval = setInterval(animateVisualization, 80);
+    timerInterval = setInterval(updateTimer, 1000);
+}
+
+/* ================= AUTO STOP ================= */
+function stopRecording() {
+    if (!isRecording) return;
+    isRecording = false;
+
+    mediaRecorder.stop();
+
+    mediaRecorder.onstop = async () => {
+        const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
+        const formData = new FormData();
+        formData.append("audio", audioBlob, "voice.webm");
+
+        await fetch("/voice", { method: "POST", body: formData });
+        console.log("✅ Voice sent to Flask");
+    };
+
+    if (audioStream) {
+        audioStream.getTracks().forEach(t => t.stop());
+        audioStream = null;
+    }
+
+    clearInterval(visualizationInterval);
+    clearInterval(timerInterval);
+
+    document.getElementById("voiceVisual").classList.remove("recording");
+    document.getElementById("visualization").classList.remove("recording");
+    document.getElementById("timer").classList.remove("recording");
+
+    document.getElementById("status").innerHTML =
+        '<span class="status-icon">✅</span><span class="status-text">Voice sent</span>';
+    document.getElementById("status").className = "status success";
+
+    document.getElementById("timer").textContent = "00:06";
+}
+
+/* ================= INIT ================= */
+document.addEventListener("DOMContentLoaded", () => {
+    generateVisualizationBars();
+
+    /* 🔓 AUDIO AUTOPLAY UNLOCK (CRITICAL FIX) */
+    document.body.addEventListener("click", () => {
+        alertSound.play().then(() => {
+            alertSound.pause();
+            alertSound.currentTime = 0;
+        }).catch(() => {});
+    }, { once: true });
+
+    /* 🔁 Emergency polling */
+    setInterval(checkRealtimeAlert, 2000);
+
+    /* ⏱ Auto start after 1 second */
+    setTimeout(startRecording, 1000);
+});
+</script>
+
+
+</body>
+</html>

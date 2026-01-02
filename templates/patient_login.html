@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Login - AI Assistant</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary-blue: #1a73e8;
+            --primary-green: #0f9d58;
+            --dark-blue: #0d47a1;
+            --light-blue: #e8f0fe;
+            --accent-teal: #1de9b6;
+            --gradient-primary: linear-gradient(135deg, var(--primary-blue), var(--primary-green));
+            --gradient-secondary: linear-gradient(135deg, #0d47a1, #0f9d58);
+            --shadow-light: 0 5px 15px rgba(0, 0, 0, 0.08);
+            --shadow-medium: 0 8px 25px rgba(0, 0, 0, 0.12);
+            --shadow-strong: 0 10px 30px rgba(0, 0, 0, 0.15);
+            --radius: 12px;
+        }
+
+        body {
+            background: linear-gradient(135deg, #e3f2fd 0%, #e0f2f1 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Background decorative elements */
+        body::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(135deg, rgba(26, 115, 232, 0.1) 0%, rgba(15, 157, 88, 0.1) 100%);
+            border-radius: 50%;
+            z-index: -1;
+        }
+
+        body::after {
+            content: '';
+            position: absolute;
+            bottom: -80px;
+            left: -80px;
+            width: 400px;
+            height: 400px;
+            background: linear-gradient(135deg, rgba(29, 233, 182, 0.08) 0%, rgba(15, 157, 88, 0.08) 100%);
+            border-radius: 50%;
+            z-index: -1;
+        }
+
+        .login-container {
+            display: flex;
+            width: 800px;
+            min-height: 550px;
+            background: #ffffff;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-strong);
+            overflow: hidden;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Left Panel - Illustration/Info */
+        .left-panel {
+            flex: 1;
+            background: var(--gradient-primary);
+            padding: 50px 40px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .left-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="2"/></svg>');
+            opacity: 0.2;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 30px;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .logo-icon {
+            background: rgba(255, 255, 255, 0.2);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .welcome-text h1 {
+            font-size: 32px;
+            margin-bottom: 15px;
+            line-height: 1.2;
+        }
+
+        .welcome-text p {
+            font-size: 16px;
+            opacity: 0.9;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .features {
+            list-style: none;
+            padding: 0;
+            margin-top: 30px;
+        }
+
+        .features li {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .features li::before {
+            content: "✓";
+            background: rgba(255, 255, 255, 0.2);
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        /* Right Panel - Login Form */
+        .right-panel {
+            flex: 1;
+            padding: 60px 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .form-header h2 {
+            color: var(--dark-blue);
+            font-size: 32px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .form-header p {
+            color: #666;
+            font-size: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .input-container {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary-blue);
+            font-size: 18px;
+            z-index: 2;
+        }
+
+        input {
+            width: 100%;
+            padding: 16px 15px 16px 50px;
+            border-radius: 8px;
+            border: 1.5px solid #ddd;
+            font-size: 15px;
+            background-color: #fafafa;
+            transition: all 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            background-color: white;
+            box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
+        }
+
+        .forgot-password {
+            text-align: right;
+            margin-top: -15px;
+            margin-bottom: 25px;
+        }
+
+        .forgot-password a {
+            color: var(--primary-blue);
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s;
+        }
+
+        .forgot-password a:hover {
+            color: var(--primary-green);
+            text-decoration: underline;
+        }
+
+        button {
+            width: 100%;
+            padding: 16px;
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+            box-shadow: 0 4px 12px rgba(26, 115, 232, 0.2);
+            letter-spacing: 0.5px;
+        }
+
+        button:hover {
+            background: var(--gradient-secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(26, 115, 232, 0.25);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .register-link {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            font-size: 15px;
+            color: #666;
+        }
+
+        .register-link a {
+            text-decoration: none;
+            color: var(--primary-blue);
+            font-weight: 600;
+            transition: color 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .register-link a:hover {
+            color: var(--primary-green);
+            text-decoration: underline;
+        }
+
+        .register-link a::after {
+            content: "→";
+            font-size: 16px;
+            transition: transform 0.3s;
+        }
+
+        .register-link a:hover::after {
+            transform: translateX(3px);
+        }
+
+        .back-link {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--dark-blue);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 8px 16px;
+            border-radius: 20px;
+            box-shadow: var(--shadow-light);
+            z-index: 10;
+        }
+
+        .back-link:hover {
+            color: var(--primary-green);
+            background: white;
+        }
+
+        .back-link::before {
+            content: "←";
+            font-size: 18px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 950px) {
+            .login-container {
+                width: 90%;
+                max-width: 700px;
+                flex-direction: column;
+            }
+            
+            .left-panel {
+                padding: 40px 30px;
+            }
+            
+            .right-panel {
+                padding: 40px 30px;
+            }
+            
+            .back-link {
+                top: 20px;
+                left: 20px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .login-container {
+                width: 95%;
+                margin: 20px;
+            }
+            
+            .left-panel {
+                padding: 30px 25px;
+            }
+            
+            .right-panel {
+                padding: 30px 25px;
+            }
+            
+            .welcome-text h1 {
+                font-size: 26px;
+            }
+            
+            .form-header h2 {
+                font-size: 26px;
+            }
+        }
+
+        /* Error message styling */
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+            border-left: 4px solid #c62828;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        /* Success message styling */
+        .success-message {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+            border-left: 4px solid #2e7d32;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+
+<body>
+    <a href="/" class="back-link">Back to Home</a>
+    
+    <div class="login-container">
+        <!-- Left Panel - Information -->
+        <div class="left-panel">
+            <div class="logo">
+                <div class="logo-icon">🤖</div>
+                <span>AI Assistant</span>
+            </div>
+            
+            <div class="welcome-text">
+                <h1>Welcome Back</h1>
+                <p>Sign in to access your personalized AI Assistant dashboard with voice, gesture, emotion, and activity recognition features.</p>
+            </div>
+            
+            <ul class="features">
+                <li>Access your health monitoring dashboard</li>
+                <li>Control assistant with voice commands</li>
+                <li>View activity and emotion reports</li>
+                <li>Connect with your caretaker</li>
+            </ul>
+            
+            <div style="margin-top: auto; font-size: 14px; opacity: 0.8;">
+                <p>Need help? Contact support: support@aiassistant.com</p>
+            </div>
+        </div>
+        
+        <!-- Right Panel - Login Form -->
+        <div class="right-panel">
+            <div class="form-header">
+                <h2>Patient Login</h2>
+                <p>Enter your credentials to access your account</p>
+            </div>
+            
+            <!-- Error message placeholder -->
+            <div class="error-message" id="errorMessage">
+                Invalid username or password. Please try again.
+            </div>
+            
+            <!-- Success message for demo -->
+            <div class="success-message" id="successMessage">
+                Login successful! Redirecting to dashboard...
+            </div>
+            
+            <!-- IMPORTANT: Changed action to /patient_login -->
+            <form method="post" action="/patient_login" id="loginForm">
+                <div class="form-group">
+                    <label for="name">Patient Name</label>
+                    <div class="input-container">
+                        <div class="input-icon">👤</div>
+                        <input type="text" id="name" name="name" placeholder="Enter your name" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="input-container">
+                        <div class="input-icon">🔒</div>
+                        <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                    </div>
+                </div>
+                
+                <button type="submit" id="submitBtn">Sign In</button>
+            </form>
+            
+            <div class="register-link">
+                Don't have an account?
+                <a href="/patient_register">Register here</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('loginForm');
+            const errorMessage = document.getElementById('errorMessage');
+            const successMessage = document.getElementById('successMessage');
+            const submitBtn = document.getElementById('submitBtn');
+            const inputs = form.querySelectorAll('input');
+            
+            // Hide messages initially
+            errorMessage.style.display = 'none';
+            successMessage.style.display = 'none';
+            
+            // Check if redirected with error
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('error')) {
+                errorMessage.textContent = urlParams.get('error') || "Invalid credentials";
+                errorMessage.classList.add('show');
+            }
+            
+            if (urlParams.has('registered')) {
+                successMessage.textContent = "Registration successful! Please login with your credentials.";
+                successMessage.classList.add('show');
+                
+                setTimeout(() => {
+                    successMessage.classList.remove('show');
+                }, 5000);
+            }
+            
+            // Add focus effects to inputs
+            inputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.style.borderColor = 'var(--primary-blue)';
+                    this.style.boxShadow = '0 0 0 3px rgba(26, 115, 232, 0.1)';
+                });
+                
+                input.addEventListener('blur', function() {
+                    if (!this.value) {
+                        this.style.borderColor = '#ddd';
+                        this.style.boxShadow = 'none';
+                    }
+                });
+            });
+            
+            // Simple validation before submit
+            form.addEventListener('submit', function(e) {
+                const username = document.getElementById('name').value.trim();
+                const password = document.getElementById('password').value.trim();
+                
+                // Clear previous messages
+                errorMessage.classList.remove('show');
+                successMessage.classList.remove('show');
+                
+                // Basic validation
+                if (!username || !password) {
+                    e.preventDefault(); // Stop form submission
+                    showError("Please fill in all fields");
+                    return false;
+                }
+                
+                // For demo purposes - show loading
+                submitBtn.textContent = "Signing in...";
+                submitBtn.disabled = true;
+                
+                // Let form submit normally - Flask will handle authentication
+                return true;
+            });
+            
+            function showError(message) {
+                errorMessage.textContent = message;
+                errorMessage.classList.add('show');
+                successMessage.classList.remove('show');
+                
+                // Auto-hide error after 5 seconds
+                setTimeout(() => {
+                    errorMessage.classList.remove('show');
+                }, 5000);
+            }
+            
+            // Demo credentials auto-fill for testing
+            document.getElementById('name').addEventListener('dblclick', function() {
+                this.value = 'demo';
+                document.getElementById('password').value = 'demo';
+                errorMessage.classList.remove('show');
+                successMessage.classList.remove('show');
+            });
+            
+            // If page loaded with error parameter from Flask
+            {% if error %}
+                showError("{{ error }}");
+            {% endif %}
+        });
+    </script>
+</body>
+</html>

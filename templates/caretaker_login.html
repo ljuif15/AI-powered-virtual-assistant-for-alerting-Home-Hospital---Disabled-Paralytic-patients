@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caretaker Login - AI Assistant</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary-blue: #1a73e8;
+            --primary-green: #0f9d58;
+            --dark-blue: #0d47a1;
+            --light-blue: #e8f0fe;
+            --accent-teal: #1de9b6;
+            --caretaker-color: #17a2b8;
+            --caretaker-dark: #138496;
+            --caretaker-gradient: linear-gradient(135deg, #17a2b8, #138496);
+            --caretaker-success: #28a745;
+            --gradient-primary: linear-gradient(135deg, var(--primary-blue), var(--primary-green));
+            --gradient-secondary: linear-gradient(135deg, #0d47a1, #0f9d58);
+            --shadow-light: 0 5px 15px rgba(0, 0, 0, 0.08);
+            --shadow-medium: 0 8px 25px rgba(0, 0, 0, 0.12);
+            --shadow-strong: 0 10px 30px rgba(0, 0, 0, 0.15);
+            --radius: 12px;
+        }
+
+        body {
+            background: linear-gradient(135deg, #e3f2fd 0%, #e0f2f1 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Background decorative elements */
+        body::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(135deg, rgba(23, 162, 184, 0.1) 0%, rgba(40, 167, 69, 0.1) 100%);
+            border-radius: 50%;
+            z-index: -1;
+        }
+
+        body::after {
+            content: '';
+            position: absolute;
+            bottom: -80px;
+            left: -80px;
+            width: 400px;
+            height: 400px;
+            background: linear-gradient(135deg, rgba(29, 233, 182, 0.08) 0%, rgba(19, 132, 150, 0.08) 100%);
+            border-radius: 50%;
+            z-index: -1;
+        }
+
+        .login-container {
+            display: flex;
+            width: 830px;
+            min-height: 550px;
+            background: #ffffff;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-strong);
+            overflow: hidden;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Left Panel - Illustration/Info */
+        .left-panel {
+            flex: 1;
+            background: var(--caretaker-gradient);
+            padding: 50px 40px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .left-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="2"/></svg>');
+            opacity: 0.2;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 30px;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .logo-icon {
+            background: rgba(255, 255, 255, 0.2);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .welcome-text h1 {
+            font-size: 32px;
+            margin-bottom: 15px;
+            line-height: 1.2;
+        }
+
+        .welcome-text p {
+            font-size: 16px;
+            opacity: 0.9;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .features {
+            list-style: none;
+            padding: 0;
+            margin-top: 30px;
+        }
+
+        .features li {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+            font-size: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 12px 15px;
+            border-radius: 8px;
+            backdrop-filter: blur(5px);
+        }
+
+        .features li::before {
+            content: "✓";
+            background: rgba(255, 255, 255, 0.3);
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        /* Right Panel - Login Form */
+        .right-panel {
+            flex: 1;
+            padding: 60px 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .form-header h2 {
+            color: var(--caretaker-color);
+            font-size: 32px;
+            margin-bottom: 10px;
+            font-weight: 600;
+            position: relative;
+            display: inline-block;
+        }
+
+        .form-header h2::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: var(--caretaker-gradient);
+            border-radius: 3px;
+        }
+
+        .form-header p {
+            color: #666;
+            font-size: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .input-container {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--caretaker-color);
+            font-size: 18px;
+            z-index: 2;
+        }
+
+        input {
+            width: 100%;
+            padding: 16px 15px 16px 50px;
+            border-radius: 8px;
+            border: 1.5px solid #ddd;
+            font-size: 15px;
+            background-color: #fafafa;
+            transition: all 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--caretaker-color);
+            background-color: white;
+            box-shadow: 0 0 0 3px rgba(23, 162, 184, 0.1);
+        }
+
+        .forgot-password {
+            text-align: right;
+            margin-top: -15px;
+            margin-bottom: 25px;
+        }
+
+        .forgot-password a {
+            color: var(--caretaker-color);
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s;
+        }
+
+        .forgot-password a:hover {
+            color: var(--caretaker-dark);
+            text-decoration: underline;
+        }
+
+        button {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--caretaker-success), var(--caretaker-color));
+            color: white;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+            box-shadow: 0 4px 12px rgba(23, 162, 184, 0.2);
+            letter-spacing: 0.5px;
+        }
+
+        button:hover {
+            background: linear-gradient(135deg, var(--caretaker-dark), #218838);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(23, 162, 184, 0.25);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .register-link {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            font-size: 15px;
+            color: #666;
+        }
+
+        .register-link a {
+            text-decoration: none;
+            color: var(--caretaker-color);
+            font-weight: 600;
+            transition: color 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .register-link a:hover {
+            color: var(--caretaker-dark);
+            text-decoration: underline;
+        }
+
+        .register-link a::after {
+            content: "→";
+            font-size: 16px;
+            transition: transform 0.3s;
+        }
+
+        .register-link a:hover::after {
+            transform: translateX(3px);
+        }
+
+        .back-link {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--dark-blue);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 8px 16px;
+            border-radius: 20px;
+            box-shadow: var(--shadow-light);
+            z-index: 10;
+        }
+
+        .back-link:hover {
+            color: var(--caretaker-color);
+            background: white;
+        }
+
+        .back-link::before {
+            content: "←";
+            font-size: 18px;
+        }
+
+        /* Error message styling */
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+            border-left: 4px solid #c62828;
+        }
+
+        .error-message.show {
+            display: block;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        /* Success message styling */
+        .success-message {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+            border-left: 4px solid #2e7d32;
+        }
+
+        .success-message.show {
+            display: block;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Caretaker stats */
+        .caretaker-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 950px) {
+            .login-container {
+                width: 90%;
+                max-width: 750px;
+            }
+            
+            .left-panel {
+                padding: 40px 30px;
+            }
+            
+            .right-panel {
+                padding: 40px 30px;
+            }
+            
+            .back-link {
+                top: 20px;
+                left: 20px;
+            }
+            
+            .caretaker-stats {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .login-container {
+                flex-direction: column;
+                width: 95%;
+                margin: 20px;
+                min-height: auto;
+            }
+            
+            .left-panel {
+                padding: 30px 25px;
+            }
+            
+            .right-panel {
+                padding: 30px 25px;
+            }
+            
+            .welcome-text h1 {
+                font-size: 26px;
+            }
+            
+            .form-header h2 {
+                font-size: 26px;
+            }
+            
+            .caretaker-stats {
+                flex-direction: row;
+                justify-content: space-around;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .caretaker-stats {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .stat-item {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            
+            .stat-number {
+                font-size: 20px;
+                margin-bottom: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <a href="/" class="back-link">Back to Home</a>
+    
+    <div class="login-container">
+        <!-- Left Panel - Information -->
+        <div class="left-panel">
+            <div class="logo">
+                <div class="logo-icon">👨‍⚕️</div>
+                <span>AI Assistant - Caretaker</span>
+            </div>
+            
+            <div class="welcome-text">
+                <h1>Welcome Back, Caretaker</h1>
+                <p>Sign in to access your patient management dashboard. Monitor health metrics, receive alerts, and provide better care with AI-powered insights.</p>
+            </div>
+            
+            <ul class="features">
+                <li>Real-time patient monitoring</li>
+                <li>Health metrics and analytics</li>
+                <li>Emergency alerts and notifications</li>
+                <li>Medication and schedule management</li>
+                <li>Direct communication with patients</li>
+            </ul>
+            
+            <div class="caretaker-stats">
+                <div class="stat-item">
+                    <div class="stat-number">500+</div>
+                    <div class="stat-label">Active Caretakers</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">2,500+</div>
+                    <div class="stat-label">Patients Assisted</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">99%</div>
+                    <div class="stat-label">Satisfaction Rate</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Panel - Login Form -->
+        <div class="right-panel">
+            <div class="form-header">
+                <h2>Caretaker Login</h2>
+                <p>Enter your credentials to access the caretaker dashboard</p>
+            </div>
+            
+            <!-- Success message (for registration redirect) -->
+            <div class="success-message" id="successMessage">
+                Registration successful! Please login with your credentials.
+            </div>
+            
+            <!-- Error message placeholder -->
+            <div class="error-message" id="errorMessage">
+                Invalid caretaker name or password. Please try again.
+            </div>
+            
+            <form method="post" id="loginForm" action="/caretaker_login">
+                <div class="form-group">
+                    <label for="name">Caretaker Name</label>
+                    <div class="input-container">
+                        <div class="input-icon">👨‍⚕️</div>
+                        <input type="text" id="name" name="name" placeholder="Enter your caretaker name" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="input-container">
+                        <div class="input-icon">🔒</div>
+                        <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                    </div>
+                </div>
+                
+                <button type="submit" id="submitBtn">Sign In as Caretaker</button>
+            </form>
+            
+            <div class="register-link">
+                New to AI Assistant?
+                <a href="/caretaker_register">Register as Caretaker</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('loginForm');
+            const errorMessage = document.getElementById('errorMessage');
+            const successMessage = document.getElementById('successMessage');
+            const submitBtn = document.getElementById('submitBtn');
+            const inputs = form.querySelectorAll('input');
+            
+            // Check if redirected from successful registration
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('registered')) {
+                successMessage.classList.add('show');
+                
+                // Auto-hide success message after 5 seconds
+                setTimeout(() => {
+                    successMessage.classList.remove('show');
+                }, 5000);
+            }
+            
+            // Check if there's an error parameter in URL (from Flask)
+            if (urlParams.has('error')) {
+                errorMessage.textContent = decodeURIComponent(urlParams.get('error'));
+                errorMessage.classList.add('show');
+                
+                // Auto-hide error after 5 seconds
+                setTimeout(() => {
+                    errorMessage.classList.remove('show');
+                }, 5000);
+            }
+            
+            // Add focus effects to inputs
+            inputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.style.borderColor = 'var(--caretaker-color)';
+                    this.style.boxShadow = '0 0 0 3px rgba(23, 162, 184, 0.1)';
+                });
+                
+                input.addEventListener('blur', function() {
+                    if (!this.value) {
+                        this.style.borderColor = '#ddd';
+                        this.style.boxShadow = 'none';
+                    }
+                });
+            });
+            
+            // Form validation on submit
+            form.addEventListener('submit', function(e) {
+                let isValid = true;
+                const caretakerName = document.getElementById('name').value.trim();
+                const password = document.getElementById('password').value.trim();
+                
+                // Clear previous messages
+                errorMessage.classList.remove('show');
+                successMessage.classList.remove('show');
+                
+                // Basic validation
+                if (!caretakerName) {
+                    e.preventDefault();
+                    showError("Please enter your caretaker name");
+                    document.getElementById('name').focus();
+                    isValid = false;
+                } else if (!password) {
+                    e.preventDefault();
+                    showError("Please enter your password");
+                    document.getElementById('password').focus();
+                    isValid = false;
+                } else if (password.length < 6) {
+                    e.preventDefault();
+                    showError("Password must be at least 6 characters");
+                    document.getElementById('password').focus();
+                    isValid = false;
+                }
+                
+                // If valid, show loading state but let form submit normally
+                if (isValid) {
+                    // Show loading state
+                    submitBtn.textContent = "Signing in...";
+                    submitBtn.disabled = true;
+                    submitBtn.style.opacity = "0.8";
+                    
+                    // Let the form submit to Flask (no e.preventDefault())
+                    // Flask will handle the authentication and redirect
+                }
+            });
+            
+            function showError(message) {
+                errorMessage.textContent = message;
+                errorMessage.classList.add('show');
+                
+                // Auto-hide error after 5 seconds
+                setTimeout(() => {
+                    errorMessage.classList.remove('show');
+                }, 5000);
+            }
+            
+            // Demo credentials auto-fill for testing (double-click on name field)
+            document.getElementById('name').addEventListener('dblclick', function() {
+                this.value = 'caretaker';
+                document.getElementById('password').value = 'caretaker123';
+                errorMessage.classList.remove('show');
+                successMessage.classList.remove('show');
+            });
+            
+            // Enter key to submit form
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && (document.activeElement.id === 'name' || document.activeElement.id === 'password')) {
+                    // The form submit event will handle validation
+                }
+            });
+            
+            // Add visual feedback for password field
+            const passwordInput = document.getElementById('password');
+            passwordInput.addEventListener('input', function() {
+                if (this.value.length > 0) {
+                    const strength = Math.min(this.value.length * 10, 100);
+                    this.style.background = `linear-gradient(to right, #e8f5e9 ${strength}%, #fafafa ${strength}%)`;
+                } else {
+                    this.style.background = '#fafafa';
+                }
+            });
+            
+            // Clear loading state if user goes back
+            window.addEventListener('pageshow', function(event) {
+                if (event.persisted) {
+                    submitBtn.textContent = "Sign In as Caretaker";
+                    submitBtn.disabled = false;
+                    submitBtn.style.opacity = "1";
+                }
+            });
+        });
+    </script>
+</body>
+</html>
